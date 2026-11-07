@@ -1,5 +1,6 @@
 import Hero from '@/components/Hero';
 import SelectedPartners from '@/components/SelectedPartners';
+import FinaleCTA from '@/components/FinaleCTA';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import Reveal from '@/components/Reveal';
@@ -291,37 +292,7 @@ export default function HomePage() {
       </section>
 
       {/* FINALE CTA */}
-      <section className="bg-[var(--ink)] text-white text-center py-32 px-6 overflow-hidden relative">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(10,92,110,0.15)_0%,transparent_60%)] mix-blend-screen pointer-events-none" />
-
-        <Reveal className="wrap relative z-10">
-          <p className="font-serif text-[clamp(32px,6vw,72px)] mb-4">
-            YOU THINK. <br />
-            <span className="text-[var(--duck)] italic">WE BUILD.</span>
-          </p>
-
-          <p className="text-[16px] text-[var(--muted-on-ink)] mb-12 max-w-[60ch] mx-auto opacity-80">
-            You&apos;ve seen how we think. If you&apos;ve got something worth building, that&apos;s all we need to start. Let&apos;s map the logic and craft the experience.
-          </p>
-
-          <div className="flex justify-center gap-4 flex-wrap">
-            <Link
-              to="/quote"
-              className="group inline-flex items-center gap-4 text-[13px] font-bold tracking-widest bg-[var(--duck)] px-8 py-5 rounded-full hover:bg-white hover:text-black transition-all duration-400"
-            >
-              GET A QUOTE
-              <span className="w-2 h-2 rounded-full bg-white group-hover:bg-[var(--duck)]" />
-            </Link>
-
-            <a
-              href="mailto:studio@tarkadesign.com"
-              className="inline-flex items-center gap-2 text-[13px] font-bold tracking-widest px-8 py-5 rounded-full border border-white/20 hover:bg-white/5 transition-all"
-            >
-              CONTACT STUDIO
-            </a>
-          </div>
-        </Reveal>
-      </section>
+      <FinaleCTA />
     </>
   );
 }

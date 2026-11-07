@@ -44,112 +44,51 @@ export default function Loader() {
                 },
             });
 
-            // 1 — Mark reveal
+            // Total runtime: 1.5 seconds
+            const TOTAL = 2;
+            const logoEls = logos as HTMLDivElement[];
+
+            // 1 — Mark reveal (0 – 0.5s)
             if (glowRef.current) {
-                tl.to(glowRef.current, {
-                    scale: 1,
-                    opacity: 0.34,
-                    duration: 0.9,
-                    ease: 'power2.out',
-                });
+                tl.to(glowRef.current, { scale: 1, opacity: 0.34, duration: 0.5, ease: 'power2.out' }, 0);
             }
             if (ringRef.current) {
-                tl.to(ringRef.current, {
-                    scale: 1,
-                    rotation: 0,
-                    opacity: 1,
-                    duration: 1.15,
-                    ease: 'power3.out',
-                }, '-=0.55');
+                tl.to(ringRef.current, { scale: 1, rotation: 0, opacity: 1, duration: 0.5, ease: 'power3.out' }, 0);
             }
             if (ringInnerRef.current) {
-                tl.to(ringInnerRef.current, {
-                    scale: 1,
-                    opacity: 1,
-                    duration: 0.9,
-                    ease: 'power2.out',
-                }, '-=0.75');
+                tl.to(ringInnerRef.current, { scale: 1, opacity: 1, duration: 0.4, ease: 'power2.out' }, 0.05);
             }
-            if (logos.length) {
-                tl.to(logos, {
-                    opacity: 1,
-                    scale: 1,
-                    duration: 1.0,
-                    ease: 'power3.out',
-                    stagger: 0.08,
-                }, '-=0.7');
+            if (logoEls.length) {
+                tl.to(logoEls, { opacity: 1, scale: 1, duration: 0.4, ease: 'power3.out', stagger: 0.05 }, 0.05);
             }
             if (progressRef.current) {
-                tl.to(progressRef.current, {
-                    scaleX: 1,
-                    duration: 1.0,
-                    ease: 'power2.inOut',
-                }, '-=0.35');
+                tl.to(progressRef.current, { scaleX: 1, duration: 1.0, ease: 'power2.inOut' }, 0);
             }
 
-            // 2 — Hold complete mark
-            tl.to({}, { duration: 1.05 });
-
-            // 3 — One calm revolution
+            // 2 — One quick revolution (0.5 – 0.95s)
             if (ringRef.current) {
-                tl.to(ringRef.current, {
-                    rotation: 360,
-                    duration: 1.35,
-                    ease: 'power1.inOut',
-                });
+                tl.to(ringRef.current, { rotation: 360, duration: 0.45, ease: 'power1.inOut' }, 0.5);
             }
 
-            // 4 — Split the TARKA mark
-            tl.add('split');
+            // 3 — Split the TARKA mark and open out (0.95 – 1.5s)
+            const split = 0.95;
             if (leftLogoRef.current) {
-                tl.to(leftLogoRef.current, {
-                    xPercent: -145,
-                    rotation: -7,
-                    opacity: 0,
-                    duration: 0.85,
-                    ease: 'power4.inOut',
-                }, 'split');
+                tl.to(leftLogoRef.current, { xPercent: -145, rotation: -7, opacity: 0, duration: 0.4, ease: 'power4.inOut' }, split);
             }
             if (rightLogoRef.current) {
-                tl.to(rightLogoRef.current, {
-                    xPercent: 145,
-                    rotation: 7,
-                    opacity: 0,
-                    duration: 0.85,
-                    ease: 'power4.inOut',
-                }, 'split');
+                tl.to(rightLogoRef.current, { xPercent: 145, rotation: 7, opacity: 0, duration: 0.4, ease: 'power4.inOut' }, split);
             }
             if (ringRef.current) {
-                tl.to(ringRef.current, {
-                    scale: 18,
-                    rotation: 520,
-                    opacity: 0,
-                    duration: 1.35,
-                    ease: 'power4.inOut',
-                }, 'split+=0.12');
+                tl.to(ringRef.current, { scale: 18, rotation: 520, opacity: 0, duration: TOTAL - split - 0.05, ease: 'power4.inOut' }, split + 0.05);
             }
             if (ringInnerRef.current) {
-                tl.to(ringInnerRef.current, {
-                    scale: 14,
-                    opacity: 0,
-                    duration: 1.2,
-                    ease: 'power4.inOut',
-                }, 'split+=0.16');
+                tl.to(ringInnerRef.current, { scale: 14, opacity: 0, duration: 0.45, ease: 'power4.inOut' }, split + 0.05);
             }
             if (glowRef.current) {
-                tl.to(glowRef.current, {
-                    scale: 8,
-                    opacity: 0,
-                    duration: 1.15,
-                    ease: 'power3.inOut',
-                }, 'split+=0.15');
+                tl.to(glowRef.current, { scale: 8, opacity: 0, duration: 0.45, ease: 'power3.inOut' }, split + 0.05);
             }
             if (loaderRef.current) {
-                tl.to(loaderRef.current, {
-                    opacity: 0,
-                    duration: 0.5,
-                    ease: 'power2.out',
-                }, 'split+=0.95');
+                tl.to(loaderRef.current, { opacity: 0, duration: 0.3, ease: 'power2.out' }, TOTAL - 0.3);
             }
         }, loaderRef);
 
