@@ -1,0 +1,360 @@
+.world-board {
+    --world-black: #090a0a;
+    --world-burgundy: #48090e;
+    --world-burgundy-light: #76232d;
+    --world-teal: #08778a;
+    --world-teal-light: #24a0a5;
+    --world-white: #f4f3f0;
+    --world-grey: #999b9b;
+
+    background: var(--world-white);
+    color: var(--world-black);
+    font-family: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+}
+
+.world-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: var(--world-teal);
+    margin-bottom: 25px;
+}
+
+.eyebrow-line {
+    height: 1px;
+    width: 35px;
+    background: var(--world-teal);
+}
+
+.world-title {
+    font-size: clamp(48px, 8vw, 104px);
+    line-height: 0.98;
+    letter-spacing: -0.075em;
+    font-weight: 500;
+}
+
+.world-title span {
+    color: var(--world-teal);
+}
+
+.world-intro {
+    color: #777;
+    font-size: 14px;
+    margin-top: 22px;
+    letter-spacing: 0.01em;
+}
+
+/* Revolving header element */
+.world-orbit {
+    position: relative;
+    width: 145px;
+    height: 145px;
+    flex-shrink: 0;
+    margin: 0 25px 10px;
+}
+
+.orbit-ring {
+    position: absolute;
+    inset: 10px;
+    border: 1px solid rgba(8,119,138,.45);
+    border-radius: 50%;
+}
+
+.orbit-ring-one {
+    animation: revolve 14s linear infinite;
+}
+
+.orbit-ring-two {
+    inset: 25px;
+    border-color: rgba(72,9,14,.35);
+    animation: revolve 9s linear infinite reverse;
+}
+
+.orbit-core {
+    position: absolute;
+    width: 35px;
+    height: 35px;
+    background: var(--world-burgundy);
+    border-radius: 50%;
+    top: 55px;
+    left: 55px;
+}
+
+.orbit-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--world-teal);
+    border-radius: 50%;
+    top: 5px;
+    left: 68px;
+    transform-origin: 5px 67px;
+    animation: revolve 9s linear infinite;
+}
+
+/* Curved article layout */
+.world-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+.world-card {
+    min-height: 490px;
+    padding: 30px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    text-decoration: none;
+    border-radius: 90px 24px 90px 24px;
+    background: var(--world-black);
+    color: var(--world-white);
+    isolation: isolate;
+    transition:
+        border-radius .6s cubic-bezier(.2,.8,.2,1),
+        transform .5s ease,
+        background .4s ease;
+}
+
+.world-card-1 {
+    grid-row: span 2;
+    min-height: 650px;
+    border-radius: 24px 120px 24px 120px;
+}
+
+.world-card-2 {
+    background: var(--world-burgundy);
+    border-radius: 110px 24px 110px 24px;
+}
+
+.world-card-3 {
+    background: #10343a;
+    border-radius: 24px 110px 24px 110px;
+}
+
+.world-card:hover {
+    transform: translateY(-7px);
+    border-radius: 45px;
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 2;
+}
+
+.card-number,
+.card-tag {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+}
+
+.card-number {
+    color: rgba(255,255,255,.55);
+}
+
+.card-tag {
+    padding: 9px 15px;
+    border: 1px solid rgba(255,255,255,.3);
+    border-radius: 30px;
+}
+
+/* Animated orbital artwork */
+.card-visual {
+    position: absolute;
+    width: 280px;
+    height: 280px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+}
+
+.visual-orbit {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 50%;
+}
+
+.visual-orbit-one {
+    border-color: rgba(36,160,165,.6);
+    animation: revolve 20s linear infinite;
+}
+
+.visual-orbit-two {
+    width: 72%;
+    height: 72%;
+    border-color: rgba(255,255,255,.3);
+    animation: revolve 13s linear infinite reverse;
+}
+
+.visual-orbit-three {
+    width: 43%;
+    height: 43%;
+    border-color: rgba(165,65,80,.7);
+    animation: revolve 10s linear infinite;
+}
+
+.visual-center {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: var(--world-teal);
+    box-shadow: 0 0 55px rgba(36,160,165,.25);
+    animation: pulse 5s ease-in-out infinite;
+}
+
+.visual-node {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: var(--world-burgundy-light);
+    border: 2px solid var(--world-white);
+    border-radius: 50%;
+    top: 5px;
+    left: calc(50% - 7px);
+    transform-origin: 7px 135px;
+    animation: revolve 13s linear infinite reverse;
+}
+
+.world-card-2 .visual-center {
+    background: var(--world-burgundy-light);
+}
+
+.world-card-3 .visual-center {
+    background: var(--world-teal-light);
+}
+
+.card-bottom {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 15px;
+    position: relative;
+    z-index: 2;
+}
+
+.card-bottom h2 {
+    max-width: 440px;
+    font-size: clamp(24px, 3vw, 37px);
+    line-height: 1.15;
+    letter-spacing: -1.5px;
+    font-weight: 500;
+}
+
+.card-bottom p {
+    color: rgba(255,255,255,.65);
+    font-size: 12px;
+    line-height: 1.7;
+    max-width: 340px;
+    margin-top: 14px;
+}
+
+.card-arrow {
+    width: 43px;
+    height: 43px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(255,255,255,.4);
+    border-radius: 50%;
+    font-size: 20px;
+    transition: all .3s ease;
+}
+
+.world-card:hover .card-arrow {
+    background: var(--world-white);
+    color: var(--world-black);
+    transform: rotate(45deg);
+}
+
+.world-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    border-top: 1px solid rgba(0,0,0,.15);
+    margin-top: 90px;
+    padding-top: 22px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    color: #777;
+}
+
+@keyframes revolve {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.12); }
+}
+
+@media (max-width: 768px) {
+    .world-grid {
+        grid-template-columns: 1fr;
+        gap: 18px;
+    }
+
+    .world-card,
+    .world-card-1,
+    .world-card-2,
+    .world-card-3 {
+        grid-row: auto;
+        min-height: 430px;
+        border-radius: 55px 18px 55px 18px;
+        padding: 24px;
+    }
+
+    .world-orbit {
+        width: 100px;
+        height: 100px;
+        margin: 10px auto;
+    }
+
+    .orbit-core {
+        width: 25px;
+        height: 25px;
+        top: 38px;
+        left: 38px;
+    }
+
+    .world-footer {
+        flex-direction: column;
+        margin-top: 55px;
+    }
+
+    .card-visual {
+        width: 230px;
+        height: 230px;
+    }
+
+    .visual-node {
+        transform-origin: 7px 110px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .world-board *,
+    .world-board *::before,
+    .world-board *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

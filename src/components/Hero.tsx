@@ -1,993 +1,483 @@
-﻿import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { MagneticLink } from "./MagneticButton";
 
-import type { Domain } from "../data/domains";
+const keywords = [
+  "PRODUCT",
+  "BRAND",
+  "EXPERIENCE",
+  "WEBSITE",
+  "APP",
+  "DIGITAL EXPERIENCE",
+];
 
-gsap.registerPlugin(ScrollTrigger);
+type Particle = {
+  x: number;
+  y: number;
+  homeX: number;
+  homeY: number;
+  driftX: number;
+  driftY: number;
+  phase: number;
+  size: number;
+  alpha: number;
+  color: string;
+};
 
-interface HeroProps {
-  domains: Domain[];
-  reducedMotion: boolean;
-  onSelectDomain: (index: number) => void;
-}
+const LOGO_SRC = "/tarka-logo.png";
+const PARTICLE_COUNT = 11000;
+const PARTICLE_PALETTE = ["#65bfc8", "#406e73", "#226d84", "#14696f", "#192d59"];
 
-function Hero({ domains, reducedMotion, onSelectDomain }: HeroProps) {
-  const navigate = useNavigate();
+export default function Hero() {
+  const container = useRef<HTMLElement>(null);
+  const keywordsRef = useRef<HTMLSpanElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const sectionRef = useRef<HTMLElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const subtitleRef = useRef<HTMLParagraphElement>(null);
-  const navRef = useRef<HTMLDivElement>(null);
-  const footerRef = useRef<HTMLDivElement>(null);
-  const nodeRef = useRef<HTMLDivElement>(null);
-
-  const cardRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
-  const setCardRef =
-    (index: number) => (element: HTMLButtonElement | null) => {
-      cardRefs.current[index] = element;
-    };
-
+  // Intro and service-word transitions.
   useEffect(() => {
-    const section = sectionRef.current;
-
-    if (!section) return;
+    const root = container.current;
+    if (!root || !keywordsRef.current) return;
 
     const ctx = gsap.context(() => {
-      const cards = cardRefs.current.filter(Boolean);
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      const tagline = root.querySelector(".hero-tagline");
+      const sub = root.querySelector(".hero-sub-text");
+      const ctas = root.querySelectorAll(".hero-cta");
+      const scrollCue = root.querySelector(".hero-cue");
+      const items = gsap.utils.toArray<HTMLElement>(
+        root.querySelectorAll(".keyword-item"),
+      );
 
       if (reducedMotion) {
-        gsap.set(
-          [
-            navRef.current,
-            titleRef.current,
-            subtitleRef.current,
-            footerRef.current,
-            nodeRef.current,
-            ...cards,
-          ].filter(Boolean),
-          {
+        const animated = [tagline, sub, scrollCue].filter(Boolean);
+        if (ctas.length) animated.push(...Array.from(ctas));
+        if (animated.length) {
+          gsap.set(animated, {
             opacity: 1,
-            x: 0,
-            y: 0,
-            scale: 1,
-            rotation: 0,
-            clearProps: "transform,filter",
-          }
-        );
-
+            clearProps: "filter,transform",
+          });
+        }
+        if (items.length) {
+          gsap.set(items, {
+            position: "absolute",
+            left: 0,
+            top: 0,
+            width: "100%",
+            opacity: 0,
+          });
+          gsap.set(items[0], { opacity: 1 });
+        }
         return;
       }
 
-      // INITIAL STATE
-
-      gsap.set(navRef.current, {
-        opacity: 0,
-        y: -18,
-      });
-
-      gsap.set(titleRef.current, {
-        opacity: 0,
-        y: 80,
-        scale: 0.92,
-        transformOrigin: "center center",
-      });
-
-      gsap.set(subtitleRef.current, {
-        opacity: 0,
-        y: 25,
-      });
-
-      gsap.set(footerRef.current, {
-        opacity: 0,
-        y: 20,
-      });
-
-      gsap.set(nodeRef.current, {
-        opacity: 0,
-        scale: 0,
-      });
-
-      // SIX-DOMAIN ENTRANCE
-
-      cards.forEach((card, index) => {
-        if (!card) return;
-
-        const rotations = [-7, 6, 5, -6, 2, -3];
-
-        gsap.set(card, {
-          opacity: 0,
-          scale: index >= 4 ? 0.62 : 0.72,
-          y:
-            index >= 4
-              ? 85
-              : index % 2 === 0
-                ? -55
-                : 55,
-          rotation: rotations[index] ?? 0,
-          transformOrigin: "center center",
-        });
-      });
-
-      // INTRO ANIMATION
-
-      const intro = gsap.timeline({
-        defaults: {
-          ease: "power4.out",
-        },
-      });
-
-      intro
-        .to(navRef.current, {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-        })
-        .to(
-          titleRef.current,
+      const intro = gsap.timeline();
+      if (tagline) {
+        intro.fromTo(
+          tagline,
+          { y: 18, opacity: 0, filter: "blur(8px)" },
           {
-            opacity: 1,
             y: 0,
-            scale: 1,
-            duration: 1.15,
-          },
-          "-=0.35"
-        )
-        .to(
-          subtitleRef.current,
-          {
             opacity: 1,
-            y: 0,
-            duration: 0.65,
+            filter: "blur(0px)",
+            duration: 0.9,
+            ease: "power3.out",
+            delay: 0.25,
           },
-          "-=0.7"
-        )
-        .to(
-          nodeRef.current,
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 0.65,
-            ease: "back.out(2)",
-          },
-          "-=0.45"
-        )
-        .to(
-          cards,
-          {
-            opacity: 1,
-            scale: 1,
-            y: 0,
-            duration: 1.15,
-            stagger: 0.13,
-            ease: "power4.out",
-          },
-          "-=0.35"
-        )
-        .to(
-          footerRef.current,
-          {
-            opacity: 1,
-            y: 0,
-            duration: 0.55,
-          },
-          "-=0.55"
         );
-
-      // CARD FLOATING MOTION
-
-      cards.forEach((card, index) => {
-        if (!card) return;
-
-        gsap.to(card, {
-          y: index % 2 === 0 ? -10 : 10,
-          rotation:
-            index === 4
-              ? 2.8
-              : index % 2 === 0
-                ? -7.5
-                : 6.5,
-          duration: 3.5 + index * 0.35,
-          repeat: -1,
-          yoyo: true,
-          ease: "sine.inOut",
-          delay: 1.2 + index * 0.15,
-        });
-      });
-
-      // CENTRAL NODE PULSE
-
-      gsap.to(nodeRef.current, {
-        scale: 1.18,
-        opacity: 0.72,
-        duration: 1.7,
-        repeat: -1,
-        yoyo: true,
-        ease: "sine.inOut",
-        delay: 1.8,
-      });
-
-      // SCROLL-DRIVEN CARD SEPARATION
-
-      const directions = [
-        { x: -75, y: -55 },
-        { x: 75, y: -45 },
-        { x: -65, y: 60 },
-        { x: 70, y: 55 },
-        { x: 20, y: 95 },
-        { x: 95, y: 15 },
-      ];
-
-      cards.forEach((card, index) => {
-        if (!card) return;
-
-        const direction = directions[index] ?? { x: 0, y: 0 };
-
-        gsap.to(card, {
-          x: direction.x,
-          y: direction.y,
-          rotation:
-            index === 4
-              ? -1
-              : (index % 2 === 0 ? -1 : 1) * (8 + index),
-          ease: "none",
-          scrollTrigger: {
-            trigger: section,
-            start: "top top",
-            end: "bottom top",
-            scrub: 1.4,
-          },
-        });
-      });
-
-      // MOUSE PARALLAX
-
-      if (!window.matchMedia("(pointer: coarse)").matches) {
-        const handleMouseMove = (event: MouseEvent) => {
-          const rect = section.getBoundingClientRect();
-
-          const x =
-            (event.clientX - (rect.left + rect.width / 2)) /
-            rect.width;
-
-          const y =
-            (event.clientY - (rect.top + rect.height / 2)) /
-            rect.height;
-
-          gsap.to(titleRef.current, {
-            x: x * 16,
-            y: y * 9,
-            duration: 0.8,
-            ease: "power3.out",
-            overwrite: "auto",
-          });
-
-          cards.forEach((card, index) => {
-            if (!card) return;
-
-            const depth = 1 + index * 0.25;
-
-            gsap.to(card, {
-              x: x * 28 * depth,
-              y: y * 20 * depth,
-              duration: 1,
-              ease: "power3.out",
-              overwrite: "auto",
-            });
-          });
-
-          gsap.to(nodeRef.current, {
-            x: x * 18,
-            y: y * 18,
-            duration: 1,
-            ease: "power3.out",
-            overwrite: "auto",
-          });
-        };
-
-        section.addEventListener("mousemove", handleMouseMove);
-
-        return () => {
-          section.removeEventListener("mousemove", handleMouseMove);
-        };
       }
-    }, section);
+      if (sub) {
+        intro.fromTo(
+          sub,
+          { y: 12, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.7, ease: "power2.out" },
+          "-=0.45",
+        );
+      }
+      if (ctas.length) {
+        intro.fromTo(
+          ctas,
+          { y: 10, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.6, stagger: 0.1, ease: "power2.out" },
+          "-=0.35",
+        );
+      }
+      if (scrollCue) {
+        intro.fromTo(
+          scrollCue,
+          { opacity: 0 },
+          { opacity: 0.65, duration: 0.8 },
+          "-=0.2",
+        );
+      }
+
+      if (items.length) {
+        gsap.set(items, {
+          y: 10,
+          opacity: 0,
+          filter: "blur(5px)",
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: "100%",
+        });
+        gsap.set(items[0], { y: 0, opacity: 1, filter: "blur(0px)" });
+
+        const cycle = gsap.timeline({ repeat: -1, delay: 1.5 });
+        items.forEach((item, index) => {
+          const next = items[(index + 1) % items.length];
+          cycle
+            .to({}, { duration: 1.8 })
+            .to(item, {
+              y: -10,
+              opacity: 0,
+              filter: "blur(5px)",
+              duration: 0.35,
+              ease: "power2.in",
+            })
+            .set(next, { y: 10, opacity: 0, filter: "blur(5px)" })
+            .to(next, {
+              y: 0,
+              opacity: 1,
+              filter: "blur(0px)",
+              duration: 0.42,
+              ease: "power3.out",
+            });
+        });
+      }
+    }, root);
 
     return () => ctx.revert();
-  }, [reducedMotion]);
+  }, []);
 
-  const handleCardEnter = (index: number) => {
-    if (reducedMotion) return;
+  // Particle field: idle particles float; on hover they form the actual logo.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const root = container.current;
+    const context = canvas?.getContext("2d", { alpha: true });
+    if (!canvas || !root || !context) return;
 
-    const card = cardRefs.current[index];
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    const coarsePointer = window.matchMedia(
+      "(hover: none), (pointer: coarse)",
+    ).matches;
 
-    if (!card) return;
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let frame = 0;
+    let particles: Particle[] = [];
+    let forming = false;
+    let formationStartedAt = 0;
+    let imageReady = false;
+    let disposed = false;
+    let imageAspect = 1;
+    let touchTimer: number | undefined;
 
-    gsap.to(card, {
-      scale: index >= 4 ? 1.1 : 1.08,
-      zIndex: 20,
-      duration: 0.45,
-      ease: "power3.out",
-      overwrite: "auto",
-      filter:
-        "drop-shadow(0 0 18px color-mix(in srgb, var(--duck-blue) 55%, transparent))",
-    });
-  };
+    const image = new Image();
+    image.src = LOGO_SRC;
 
-  const handleCardLeave = (index: number) => {
-    if (reducedMotion) return;
+    const random = (min: number, max: number) =>
+      min + Math.random() * (max - min);
 
-    const card = cardRefs.current[index];
+    const makeParticles = (targets: Array<{ x: number; y: number }>) => {
+      particles = targets.map((target, index) => ({
+        x: random(width * 0.12, width * 0.88),
+        y: random(height * 0.08, height * 0.92),
+        homeX: target.x,
+        homeY: target.y,
+        driftX: random(-1, 1),
+        driftY: random(-1, 1),
+        phase: random(0, Math.PI * 2) + index * 0.001,
+        size: random(0.65, 1.9),
+        alpha: random(0.58, 1),
+        color: PARTICLE_PALETTE[Math.floor(random(0, PARTICLE_PALETTE.length))],
+      }));
+    };
 
-    if (!card) return;
+    const sampleLogo = () => {
+      const sampleCanvas = document.createElement("canvas");
+      const sampleContext = sampleCanvas.getContext("2d", {
+        willReadFrequently: true,
+      });
+      if (!sampleContext) return;
 
-    gsap.to(card, {
-      scale: 1,
-      zIndex: 1,
-      duration: 0.55,
-      ease: "power3.out",
-      overwrite: "auto",
-      filter: "none",
-    });
-  };
+      const maxSampleWidth = 420;
+      const scale = Math.min(1, maxSampleWidth / image.naturalWidth);
+      const sampleWidth = Math.max(1, Math.round(image.naturalWidth * scale));
+      const sampleHeight = Math.max(
+        1,
+        Math.round(image.naturalHeight * scale),
+      );
+      sampleCanvas.width = sampleWidth;
+      sampleCanvas.height = sampleHeight;
+      sampleContext.drawImage(image, 0, 0, sampleWidth, sampleHeight);
 
-  const handleCardClick = (index: number) => {
-    const domain = domains[index];
+      let pixels: Uint8ClampedArray;
+      try {
+        pixels = sampleContext.getImageData(
+          0,
+          0,
+          sampleWidth,
+          sampleHeight,
+        ).data;
+      } catch {
+        return;
+      }
 
-    if (!domain) return;
+      const points: Array<{ x: number; y: number }> = [];
+      const step = Math.max(1, Math.floor(Math.sqrt(
+        (sampleWidth * sampleHeight) / PARTICLE_COUNT,
+      )));
+      for (let y = 0; y < sampleHeight; y += step) {
+        for (let x = 0; x < sampleWidth; x += step) {
+          const offset = (y * sampleWidth + x) * 4;
+          const alpha = pixels[offset + 3];
+          const brightness =
+            (pixels[offset] + pixels[offset + 1] + pixels[offset + 2]) / 3;
+          if (alpha > 70 && (brightness < 238 || alpha < 245)) {
+            points.push({ x: x / sampleWidth, y: y / sampleHeight });
+          }
+        }
+      }
 
-    onSelectDomain(index);
-  };
+      if (!points.length) return;
+      imageAspect = sampleWidth / sampleHeight;
 
-  const routes: Record<string, string> = {
-    HOME: "/",
-    WORK: "/product",
-    DOMAINS: "/",
-    ABOUT: "/",
-    CONTACT: "/quote",
-  };
+      const visualWidth = Math.min(width * (width < 640 ? 0.94 : 0.72), 780);
+      const visualHeight = visualWidth / imageAspect;
+      const centerX = width * (width < 640 ? 0.69 : 0.69);
+      const centerY = height * (width < 640 ? 0.39 : 0.43);
+      const left = centerX - visualWidth / 2;
+      const top = centerY - visualHeight / 2;
 
-  const handleNavigation = (label: string) => {
-    const route = routes[label];
+      const targets = points.slice(0, PARTICLE_COUNT).map((point) => ({
+        x: left + point.x * visualWidth,
+        y: top + point.y * visualHeight,
+      }));
+      makeParticles(targets);
+    };
 
-    if (route) {
-      navigate(route);
+    const resize = () => {
+      const bounds = canvas.getBoundingClientRect();
+      width = Math.max(1, bounds.width);
+      height = Math.max(1, bounds.height);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      if (imageReady) sampleLogo();
+    };
+
+    const startFormation = () => {
+      if (reducedMotion) return;
+      if (!forming) {
+        forming = true;
+        formationStartedAt = performance.now();
+      }
+    };
+
+    const releaseFormation = () => {
+      forming = false;
+    };
+
+    const onPointerEnter = () => startFormation();
+    const onPointerLeave = () => releaseFormation();
+    const onPointerDown = () => {
+      if (coarsePointer) {
+        if (forming) releaseFormation();
+        else startFormation();
+      }
+    };
+
+    image.onload = () => {
+      if (disposed) return;
+      imageReady = true;
+      resize();
+    };
+    image.onerror = () => {
+      imageReady = true;
+      const fallbackTargets = Array.from({ length: PARTICLE_COUNT }, () => ({
+        x: random(width * 0.35, width * 0.9),
+        y: random(height * 0.12, height * 0.82),
+      }));
+      makeParticles(fallbackTargets);
+    };
+
+    const render = (time: number) => {
+      if (disposed) return;
+      context.clearRect(0, 0, width, height);
+
+      const elapsed = time / 1000;
+      const haloX = width * (width < 640 ? 0.69 : 0.69);
+      const haloY = height * (width < 640 ? 0.39 : 0.43);
+      const halo = context.createRadialGradient(haloX, haloY, 4, haloX, haloY, Math.min(width, height) * 0.42);
+      halo.addColorStop(0, "rgba(34, 109, 132, 0.19)");
+      halo.addColorStop(0.48, "rgba(20, 105, 111, 0.075)");
+      halo.addColorStop(1, "rgba(25, 153, 174, 0)");
+      context.fillStyle = halo;
+      context.fillRect(0, 0, width, height);
+      const progress = forming
+        ? Math.min(1, (time - formationStartedAt) / 3000)
+        : 0;
+      const eased = progress * progress * (3 - 2 * progress);
+
+      for (const particle of particles) {
+        const floatX = Math.sin(elapsed * 0.65 + particle.phase) * 11;
+        const floatY = Math.cos(elapsed * 0.8 + particle.phase * 1.3) * 10;
+        const scatterX = particle.homeX + particle.driftX * 48 + floatX * 1.2;
+        const scatterY = particle.homeY + particle.driftY * 48 + floatY * 1.2;
+        const targetX = forming ? particle.homeX : scatterX;
+        const targetY = forming ? particle.homeY : scatterY;
+        const blend = forming ? eased : 0.035;
+
+        particle.x += (targetX - particle.x) * blend;
+        particle.y += (targetY - particle.y) * blend;
+
+        const shimmer = 0.48 + (Math.sin(elapsed * 4.2 + particle.phase) + 1) * 0.26;
+        const alpha = Math.min(1, particle.alpha * shimmer * (forming ? 1 : 0.94));
+        context.beginPath();
+        context.shadowColor = particle.color;
+        context.shadowBlur = forming ? 7 : 4;
+        context.fillStyle = particle.color;
+
+        context.arc(
+          particle.x,
+          particle.y,
+          particle.size * (forming ? 1 : 0.92),
+          0,
+          Math.PI * 2,
+        );
+        context.fill();
+        context.shadowBlur = 0;
+
+        if (particle.size > 1.25 || particle.phase % 5 < 0.7) {
+          context.beginPath();
+          context.fillStyle = `rgba(180, 245, 247, ${Math.min(1, alpha * 0.72)})`;
+          context.arc(
+            particle.x - 1.2,
+            particle.y - 1.2,
+            particle.size * 1.8,
+            0,
+            Math.PI * 2,
+          );
+          context.fill();
+        }
+
+        if (particle.phase % 17 < 0.22) {
+          const sparkle = 0.35 + (Math.sin(elapsed * 5 + particle.phase) + 1) * 0.3;
+          const radius = particle.size * 3.2;
+          context.strokeStyle = `rgba(190, 245, 250, ${sparkle})`;
+          context.lineWidth = 0.7;
+          context.beginPath();
+          context.moveTo(particle.x - radius, particle.y);
+          context.lineTo(particle.x + radius, particle.y);
+          context.moveTo(particle.x, particle.y - radius);
+          context.lineTo(particle.x, particle.y + radius);
+          context.stroke();
+        }
+      }
+
+      if (forming && progress >= 1) {
+        for (const particle of particles) {
+          particle.x += (particle.homeX - particle.x) * 0.18;
+          particle.y += (particle.homeY - particle.y) * 0.18;
+        }
+      }
+
+      frame = window.requestAnimationFrame(render);
+    };
+
+    resize();
+    if (coarsePointer && !reducedMotion) {
+      touchTimer = window.setTimeout(startFormation, 1600);
+      frame = window.requestAnimationFrame(render);
+      canvas.addEventListener("pointerdown", onPointerDown);
+      canvas.addEventListener("pointerleave", onPointerLeave);
+    } else {
+      frame = window.requestAnimationFrame(render);
+      canvas.addEventListener("pointerenter", onPointerEnter);
+      canvas.addEventListener("pointerleave", onPointerLeave);
     }
-  };
 
-  // SIX-CARD COMPOSITION
+    window.addEventListener("resize", resize);
 
-  const positions = [
-    {
-      left: "66%",
-      top: "20%",
-      rotation: -7,
-      width: "clamp(145px, 15vw, 205px)",
-      height: "clamp(185px, 19vw, 250px)",
-    },
-    {
-      left: "87%",
-      top: "20%",
-      rotation: 6,
-      width: "clamp(145px, 15vw, 205px)",
-      height: "clamp(185px, 19vw, 250px)",
-    },
-    {
-      left: "66%",
-      top: "49%",
-      rotation: 5,
-      width: "clamp(145px, 15vw, 205px)",
-      height: "clamp(185px, 19vw, 250px)",
-    },
-    {
-      left: "87%",
-      top: "49%",
-      rotation: -6,
-      width: "clamp(145px, 15vw, 205px)",
-      height: "clamp(185px, 19vw, 250px)",
-    },
-    {
-      left: "66%",
-      top: "78%",
-      rotation: 2,
-      width: "clamp(145px, 15vw, 205px)",
-      height: "clamp(185px, 19vw, 250px)",
-    },
-    {
-      left: "87%",
-      top: "78%",
-      rotation: -3,
-      width: "clamp(145px, 15vw, 205px)",
-      height: "clamp(185px, 19vw, 250px)",
-    },
-  ];
+    return () => {
+      disposed = true;
+      if (touchTimer !== undefined) window.clearTimeout(touchTimer);
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("resize", resize);
+      canvas.removeEventListener("pointerenter", onPointerEnter);
+      canvas.removeEventListener("pointerleave", onPointerLeave);
+      canvas.removeEventListener("pointerdown", onPointerDown);
+    };
+  }, []);
 
   return (
     <section
-      ref={sectionRef}
-      className="tarka-hero"
-      aria-label="Tarka Design Studio domains"
-      style={{
-        position: "relative",
-        minHeight: "100svh",
-        overflow: "hidden",
-        background: "var(--black)",
-        color: "var(--white)",
-        isolation: "isolate",
-      }}
+      ref={container}
+      className="tarka-hero relative isolate min-h-[100svh] overflow-hidden border-b border-black/10 px-[var(--gutter)] pb-16 pt-[110px] text-[#101515]"
     >
-      {/* TECHNICAL GRID */}
-
       <div
         aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
         style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          opacity: 0.2,
-          backgroundImage: `
-            linear-gradient(
-              to right,
-              color-mix(in srgb, var(--white) 8%, transparent) 1px,
-              transparent 1px
-            ),
-            linear-gradient(
-              to bottom,
-              color-mix(in srgb, var(--white) 8%, transparent) 1px,
-              transparent 1px
-            )
-          `,
-          backgroundSize: "72px 72px",
-          maskImage: "linear-gradient(to bottom, black 0%, transparent 92%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, black 0%, transparent 92%)",
+          background:
+            "radial-gradient(circle at 72% 38%, rgba(10,92,110,.10), transparent 38%), linear-gradient(120deg, #f7f9f8 0%, #f3f7f6 100%)",
         }}
       />
 
-      {/* DIAGONAL NETWORK LINES */}
+      <canvas
+        ref={canvasRef}
+        aria-label="Floating duck-blue particles that assemble into the Tarka logo when hovered"
+        role="img"
+        className="absolute right-0 top-0 z-[1] h-full w-[78%] cursor-pointer touch-manipulation sm:w-[72%]"
+      />
 
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 1440 900"
-        preserveAspectRatio="none"
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          pointerEvents: "none",
-          zIndex: 0,
-        }}
-      >
-        <line
-          x1="0"
-          y1="180"
-          x2="720"
-          y2="450"
-          stroke="var(--white)"
-          strokeOpacity="0.16"
-          strokeWidth="1"
-        />
+      <div className="pointer-events-none absolute inset-0 z-[2] bg-[linear-gradient(90deg,#f7f9f8_0%,rgba(247,249,248,.94)_25%,rgba(247,249,248,.34)_58%,rgba(247,249,248,0)_100%)]" />
+      <div className="pointer-events-none absolute inset-0 z-[2] bg-[linear-gradient(180deg,rgba(247,249,248,.12)_0%,transparent_58%,rgba(247,249,248,.72)_100%)]" />
 
-        <line
-          x1="1440"
-          y1="190"
-          x2="720"
-          y2="450"
-          stroke="var(--white)"
-          strokeOpacity="0.16"
-          strokeWidth="1"
-        />
+      <div className="absolute bottom-[clamp(76px,11vh,118px)] left-[var(--gutter)] z-10 w-[calc(100%-2*var(--gutter))] max-w-[900px]">
+        <h1 className="hero-tagline text-[clamp(3rem,8.3vw,7.7rem)] font-semibold leading-[0.94] tracking-[-0.075em] opacity-0">
+          <span className="hero-fixed-line block">YOU THINK, WE BUILD.</span>
+          <span
+            ref={keywordsRef}
+            className="hero-keyword-window relative mt-2 block min-h-[1.08em] text-[clamp(2.8rem,7.2vw,6.7rem)] text-[var(--duck)]"
+          >
+            {keywords.map((word) => (
+              <span key={word} className="keyword-item whitespace-nowrap">
+                {word}
+              </span>
+            ))}
+          </span>
+        </h1>
 
-        <line
-          x1="0"
-          y1="760"
-          x2="720"
-          y2="450"
-          stroke="var(--white)"
-          strokeOpacity="0.16"
-          strokeWidth="1"
-        />
-
-        <line
-          x1="1440"
-          y1="760"
-          x2="720"
-          y2="450"
-          stroke="var(--white)"
-          strokeOpacity="0.16"
-          strokeWidth="1"
-        />
-
-        <line
-          x1="0"
-          y1="450"
-          x2="1440"
-          y2="450"
-          stroke="var(--duck-blue)"
-          strokeOpacity="0.25"
-          strokeWidth="1"
-        />
-
-        <path
-          d="M 80 820 L 720 450 L 1360 820"
-          fill="none"
-          stroke="var(--duck-blue)"
-          strokeOpacity="0.6"
-          strokeWidth="1.5"
-        />
-
-        <path
-          d="M 80 80 L 720 450 L 1360 80"
-          fill="none"
-          stroke="var(--duck-blue)"
-          strokeOpacity="0.42"
-          strokeWidth="1"
-        />
-
-        <circle
-          cx="720"
-          cy="450"
-          r="110"
-          fill="none"
-          stroke="var(--duck-blue)"
-          strokeOpacity="0.18"
-          strokeWidth="1"
-        />
-
-        <circle
-          cx="720"
-          cy="450"
-          r="165"
-          fill="none"
-          stroke="var(--white)"
-          strokeOpacity="0.08"
-          strokeWidth="1"
-        />
-      </svg>
-
-      {/* TOP NAVIGATION */}
-
-      <div
-        ref={navRef}
-        className="tarka-hero__nav"
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 30,
-          display: "grid",
-          gridTemplateColumns: "auto 1fr auto",
-          alignItems: "center",
-          gap: "28px",
-          padding: "28px clamp(24px, 5vw, 72px)",
-          borderBottom:
-            "1px solid color-mix(in srgb, var(--white) 14%, transparent)",
-        }}
-      >
-        <button
-          type="button"
-          onClick={() => navigate("/")}
-          aria-label="Tarka home"
-          style={{
-            color: "var(--white)",
-            fontSize: "1rem",
-            fontWeight: 700,
-            letterSpacing: "0.18em",
-          }}
-        >
-          TARKA
-        </button>
-
-        <nav
-          aria-label="Primary navigation"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            gap: "clamp(16px, 3vw, 42px)",
-          }}
-        >
-          {["HOME", "WORK", "DOMAINS", "ABOUT", "CONTACT"].map((label) => (
-            <button
-              key={label}
-              type="button"
-              onClick={() => handleNavigation(label)}
-              style={{
-                color:
-                  label === "DOMAINS"
-                    ? "var(--duck-blue)"
-                    : "var(--white-soft)",
-                fontSize: "0.68rem",
-                fontWeight: 600,
-                letterSpacing: "0.15em",
-                transition: "color 250ms ease",
-              }}
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
-
-        <button
-          type="button"
-          onClick={() => navigate("/quote")}
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "10px",
-            padding: "11px 16px",
-            border:
-              "1px solid color-mix(in srgb, var(--duck-blue) 70%, transparent)",
-            color: "var(--white)",
-            fontSize: "0.67rem",
-            fontWeight: 600,
-            letterSpacing: "0.12em",
-            textTransform: "uppercase",
-          }}
-        >
-          Let's Talk
-          <span aria-hidden="true">↗</span>
-        </button>
-      </div>
-
-      {/* MAIN TITLE */}
-
-      <div
-        className="tarka-hero__title-wrap"
-        style={{
-          position: "absolute",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: "52%",
-          zIndex: 12,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-start",
-          justifyContent: "center",
-          pointerEvents: "none",
-          padding: "90px 0 110px clamp(32px, 7vw, 110px)",
-        }}
-      >
-        <p
-          ref={subtitleRef}
-          style={{
-            margin: "0 0 18px",
-            color: "var(--duck-blue)",
-            textAlign: "left",
-            fontSize: "clamp(0.62rem, 1vw, 0.78rem)",
-            fontWeight: 600,
-            letterSpacing: "0.28em",
-            textTransform: "uppercase",
-          }}
-        >
-          TARKA DESIGN STUDIO / 2026
+        <p className="hero-sub-text mt-7 max-w-[560px] text-base leading-relaxed text-black/60 opacity-0 sm:text-lg">
+          Tarka takes an idea and turns it into something real. The product,
+          the interface, the brand, or the film that carries it.
         </p>
 
-        <h1
-          ref={titleRef}
-          style={{
-            margin: 0,
-            color: "var(--white)",
-            fontFamily: "var(--font-sans)",
-            fontSize: "clamp(4.2rem, 13vw, 12rem)",
-            fontWeight: 800,
-            lineHeight: 0.78,
-            letterSpacing: "-0.075em",
-            textAlign: "left",
-            textTransform: "uppercase",
-            whiteSpace: "nowrap",
-          }}
-        >
-          D
-          <span style={{ color: "var(--duck-blue)" }}>O</span>
-          MAINS
-        </h1>
+        <div className="mt-7 flex flex-wrap items-center gap-3">
+          <div className="hero-cta opacity-0">
+            <MagneticLink href="/services" variant="primary">
+              EXPLORE SERVICES
+            </MagneticLink>
+          </div>
+          <div className="hero-cta opacity-0">
+            <MagneticLink href="/quote" variant="secondary">
+              START A PROJECT
+            </MagneticLink>
+          </div>
+        </div>
       </div>
 
-      {/* CENTRAL NODE */}
-
-      <div
-        ref={nodeRef}
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          left: "50%",
-          top: "50%",
-          width: "18px",
-          height: "18px",
-          transform: "translate(-50%, -50%)",
-          borderRadius: "50%",
-          background: "var(--duck-blue)",
-          boxShadow:
-            "0 0 0 8px color-mix(in srgb, var(--duck-blue) 14%, transparent), 0 0 40px color-mix(in srgb, var(--duck-blue) 70%, transparent)",
-          zIndex: 12,
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* SIX DOMAIN CARDS */}
-
-      {domains.slice(0, 6).map((domain, index) => {
-        const position = positions[index] ?? positions[0];
-
-        return (
-          <button
-            key={domain.id}
-            className="tarka-hero__domain-card"
-            data-card-index={index}
-            ref={setCardRef(index)}
-            type="button"
-            onClick={() => handleCardClick(index)}
-            onMouseEnter={() => handleCardEnter(index)}
-            onMouseLeave={() => handleCardLeave(index)}
-            aria-label={`Explore ${domain.title}`}
-            style={{
-              position: "absolute",
-              left: position.left,
-              top: position.top,
-              width: position.width,
-              height: position.height,
-              padding: 0,
-              overflow: "hidden",
-              border:
-                "1px solid color-mix(in srgb, var(--white) 30%, transparent)",
-              background: "var(--black-soft)",
-              color: "var(--white)",
-              transform: `translate(-50%, -50%) rotate(${position.rotation}deg)`,
-              cursor: "pointer",
-              zIndex: 5 + index,
-              boxShadow:
-                "0 24px 60px color-mix(in srgb, var(--black) 75%, transparent)",
-            }}
-          >
-            <img
-              src={domain.imageLarge}
-              alt=""
-              aria-hidden="true"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                objectPosition: "center",
-                filter: "grayscale(12%) contrast(1.06)",
-              }}
-            />
-
-            <span
-              style={{
-                position: "absolute",
-                inset: 0,
-                background:
-                  "linear-gradient(to top, color-mix(in srgb, var(--black) 82%, transparent), transparent 55%)",
-              }}
-            />
-
-            <span
-              style={{
-                position: "absolute",
-                top: "12px",
-                left: "12px",
-                padding: "5px 8px",
-                borderLeft: "2px solid var(--duck-blue)",
-                background:
-                  "color-mix(in srgb, var(--black) 82%, transparent)",
-                color: "var(--white)",
-                fontSize: "0.58rem",
-                fontWeight: 600,
-                letterSpacing: "0.13em",
-              }}
-            >
-              {domain.number} / {domain.category}
-            </span>
-
-            <span
-              style={{
-                position: "absolute",
-                left: "16px",
-                right: "16px",
-                bottom: "16px",
-                display: "flex",
-                alignItems: "flex-end",
-                justifyContent: "space-between",
-                gap: "12px",
-                textAlign: "left",
-              }}
-            >
-              <span
-                style={{
-                  maxWidth: "78%",
-                  fontSize: "clamp(0.82rem, 1.15vw, 1rem)",
-                  fontWeight: 700,
-                  lineHeight: 1.05,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {domain.title}
-              </span>
-
-              <span
-                aria-hidden="true"
-                style={{
-                  color: "var(--duck-blue)",
-                  fontSize: "1.35rem",
-                  lineHeight: 1,
-                }}
-              >
-                ↗
-              </span>
-            </span>
-          </button>
-        );
-      })}
-
-      {/* FOOTER STRIP */}
-
-      <div
-        ref={footerRef}
-        className="tarka-hero__footer"
-        style={{
-          position: "absolute",
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: 25,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: "20px",
-          padding: "18px clamp(24px, 5vw, 72px)",
-          borderTop:
-            "1px solid color-mix(in srgb, var(--white) 14%, transparent)",
-          color: "var(--white-soft)",
-          fontSize: "0.62rem",
-          letterSpacing: "0.15em",
-          textTransform: "uppercase",
-        }}
-      >
-        <span>TARKA / CREATIVE SYSTEMS</span>
-
-        <span
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "9px",
-          }}
-        >
-          <span
-            style={{
-              width: "7px",
-              height: "7px",
-              borderRadius: "50%",
-              background: "var(--duck-blue)",
-            }}
-          />
-
-          06 DOMAINS
-        </span>
-
-        <span>SCROLL TO EXPLORE ↓</span>
+      <div className="hero-cue absolute bottom-7 right-[var(--gutter)] z-10 flex items-center gap-3 text-[10px] font-semibold uppercase tracking-[0.18em] opacity-0">
+        <span>Hover the particles</span>
+        <span className="h-px w-8 origin-left animate-pulse bg-[var(--duck)]" />
       </div>
-
-      {/* RESPONSIVE CSS */}
-
-      <style>
-        {`
-          .tarka-hero button:hover {
-            color: var(--duck-blue);
-          }
-
-          @media (max-width: 1100px) {
-            .tarka-hero__title-wrap {
-              width: 48% !important;
-              padding-left: 32px !important;
-            }
-
-            .tarka-hero h1 {
-              font-size: clamp(4rem, 10vw, 8rem) !important;
-            }
-
-            .tarka-hero__domain-card {
-              width: clamp(130px, 15vw, 175px) !important;
-              height: clamp(170px, 19vw, 220px) !important;
-            }
-          }
-
-          @media (max-width: 760px) {
-            .tarka-hero {
-              min-height: 1280px !important;
-            }
-
-            .tarka-hero__nav {
-              grid-template-columns: auto auto !important;
-              padding: 20px !important;
-            }
-
-            .tarka-hero__nav nav {
-              display: none !important;
-            }
-
-            .tarka-hero__nav > button:last-child {
-              padding: 9px 12px !important;
-              font-size: 0.58rem !important;
-            }
-
-            .tarka-hero__title-wrap {
-              top: 115px !important;
-              bottom: auto !important;
-              width: 100% !important;
-              height: 210px !important;
-              padding: 0 20px !important;
-              justify-content: center !important;
-            }
-
-            .tarka-hero h1 {
-              font-size: clamp(3.4rem, 18vw, 7rem) !important;
-            }
-
-            .tarka-hero__domain-card {
-              width: 41vw !important;
-              height: 190px !important;
-            }
-
-            .tarka-hero__domain-card[data-card-index="0"],
-            .tarka-hero__domain-card[data-card-index="1"] {
-              top: 48% !important;
-            }
-
-            .tarka-hero__domain-card[data-card-index="2"],
-            .tarka-hero__domain-card[data-card-index="3"] {
-              top: 66% !important;
-            }
-
-            .tarka-hero__domain-card[data-card-index="4"],
-            .tarka-hero__domain-card[data-card-index="5"] {
-              top: 84% !important;
-            }
-
-            .tarka-hero__domain-card[data-card-index="0"],
-            .tarka-hero__domain-card[data-card-index="2"],
-            .tarka-hero__domain-card[data-card-index="4"] {
-              left: 27% !important;
-            }
-
-            .tarka-hero__domain-card[data-card-index="1"],
-            .tarka-hero__domain-card[data-card-index="3"],
-            .tarka-hero__domain-card[data-card-index="5"] {
-              left: 73% !important;
-            }
-
-            .tarka-hero__footer {
-              padding: 14px 20px !important;
-              font-size: 0.5rem !important;
-            }
-
-            .tarka-hero__footer span:first-child {
-              display: none;
-            }
-          }
-
-          @media (max-width: 380px) {
-            .tarka-hero__domain-card {
-              height: 165px !important;
-            }
-          }
-
-          @media (prefers-reduced-motion: reduce) {
-            .tarka-hero *,
-            .tarka-hero *::before,
-            .tarka-hero *::after {
-              animation: none !important;
-              transition: none !important;
-            }
-          }
-        `}
-      </style>
     </section>
   );
 }
-
-export default Hero;
