@@ -1,4 +1,5 @@
 import Hero from '@/components/Hero';
+import SelectedPartners from '@/components/SelectedPartners';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import Reveal from '@/components/Reveal';
@@ -11,27 +12,8 @@ export default function HomePage() {
     <>
       <Hero />
 
-      {/* CLIENTS SECTION */}
-      <section className="py-24 overflow-hidden bg-[var(--ink)] border-b border-white/5 relative z-10">
-        <Reveal className="wrap mb-16">
-          <span className="eyebrow !text-white/60 tracking-widest pl-2 border-l border-[var(--duck)]">
-            SELECTED PARTNERS
-          </span>
-        </Reveal>
-
-        <div className="w-full flex-col flex overflow-hidden">
-          <div className="flex w-[200vw] text-white/40 hover:text-white transition-colors duration-500 marquee-track items-center gap-16 md:gap-32 py-8">
-            {['AMAZON', 'GOOGLE', 'META', 'STRIPE', 'UBER', 'AIRBNB', 'NETFLIX', 'SPOTIFY'].map((client, i) => (
-              <h3
-                key={i}
-                className="font-serif text-[clamp(40px,8vw,120px)] whitespace-nowrap opacity-60 hover:opacity-100 hover:text-[var(--duck)] transition-all duration-300 transform hover:scale-105 cursor-default select-none"
-              >
-                {client}
-              </h3>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* SELECTED PARTNERS */}
+      <SelectedPartners />
 
       {/* SERVICES SECTION */}
       <section className="bg-[#f5f7f6] text-[#101515] py-24 md:py-32">
