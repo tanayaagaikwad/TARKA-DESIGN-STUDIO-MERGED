@@ -1,10 +1,16 @@
-import { Link } from 'react-router-dom';
+import { useCallback } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import Reveal from '@/components/Reveal';
-import ServicesHero from '@/components/services/ServicesHero';
+import PranaliHero from '@/components/PranaliHero';
+import DomainSection from '@/components/DomainSection';
 import ServicesExplorer from '@/components/services/ServicesExplorer';
+import { DOMAIN_ROUTES } from '@/components/services/servicesShared';
+import { domains } from '@/data/domains';
+import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useDocumentTitle } from '@/hooks/useDocumentTitle';
 import './ServicesPage.css';
+import '@/styles/domains-landing.css';
 
 // The three practices that have their own detail pages
 const DEEP_DIVES = [
@@ -28,9 +34,37 @@ const DEEP_DIVES = [
 export default function ServicesPage() {
   useDocumentTitle('Services');
 
+  const reducedMotion = useReducedMotion();
+  const navigate = useNavigate();
+
+  // Clicking a floating card / domain title opens Pranali's domain page
+  const openDomain = useCallback(
+    (index: number) => {
+      const domain = domains[index];
+      if (!domain) return;
+      const route = DOMAIN_ROUTES[domain.id];
+      if (route) navigate(route);
+    },
+    [navigate]
+  );
+
   return (
     <>
-      <ServicesHero />
+      {/* Pranali's domains hero + scroll-driven domain film, in the light theme */}
+      <div className="domains-landing">
+        <PranaliHero
+          domains={domains}
+          reducedMotion={reducedMotion}
+          onSelectDomain={openDomain}
+        />
+        <DomainSection
+          domains={domains}
+          reducedMotion={reducedMotion}
+          onSelectDomain={openDomain}
+        />
+      </div>
+
+      {/* List of domains / services and the rest of the page */}
       <ServicesExplorer />
 
       <section className="bg-[#f5f7f6] py-24 text-[#101515] md:py-28">

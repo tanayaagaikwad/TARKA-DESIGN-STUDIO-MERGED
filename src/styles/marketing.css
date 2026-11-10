@@ -693,58 +693,388 @@
   color: rgba(16, 21, 21, 0.55);
 }
 
+/* ============================================================
+   NAVIGATION MENU (v4)
+   - Compact links (28-44px), letters roll on hover
+   - Double wipe: teal shutter, then the paper panel
+   - Dial on the right reacts to the hovered link
+   ============================================================ */
+
+.tarka-menu-shutter {
+  position: fixed;
+  inset: 0;
+  z-index: 489;
+  background: var(--duck);
+  pointer-events: none;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 800ms cubic-bezier(0.76, 0, 0.24, 1) 120ms;
+}
+.tarka-menu-shutter[data-open="true"] {
+  clip-path: inset(0 0 0 0);
+  transition-delay: 0ms;
+}
+
 .tarka-menu-overlay {
   background: #f7f9f8;
   color: #101515;
+  overflow-x: hidden;
+  overflow-y: auto;
+  visibility: hidden;
+  pointer-events: none;
+  clip-path: inset(0 0 100% 0);
+  transition:
+    clip-path 800ms cubic-bezier(0.76, 0, 0.24, 1),
+    visibility 0s linear 800ms;
+}
+.tarka-menu-overlay[aria-hidden="false"] {
+  visibility: visible;
+  pointer-events: auto;
+  clip-path: inset(0 0 0 0);
+  transition:
+    clip-path 800ms cubic-bezier(0.76, 0, 0.24, 1) 120ms,
+    visibility 0s;
+}
+
+/* Eyebrow + footer row */
+.tarka-menu-eyebrow,
+.tarka-menu-foot {
+  opacity: 0;
+  translate: 0 24px;
+  transition: opacity 400ms ease, translate 600ms var(--ease);
+}
+.tarka-menu-overlay[aria-hidden="false"] .tarka-menu-eyebrow {
+  opacity: 1;
+  translate: 0 0;
+  transition: opacity 700ms ease 450ms, translate 800ms var(--ease) 450ms;
+}
+.tarka-menu-overlay[aria-hidden="false"] .tarka-menu-foot {
+  opacity: 1;
+  translate: 0 0;
+  transition: opacity 700ms ease 1050ms, translate 800ms var(--ease) 1050ms;
+}
+
+/* ---------- Links ---------- */
+.tarka-menu-list {
+  gap: clamp(0.35rem, 1.4vh, 0.9rem);
 }
 
 .tarka-menu-link {
+  --lfs: clamp(1.75rem, min(3vw, 5.5vh), 2.75rem); /* 28px to 44px: change this one value to resize */
   position: relative;
   display: inline-flex;
+  align-items: flex-start;
   width: fit-content;
   max-width: 100%;
+  padding-left: 0;
   color: #101515;
   font-family: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  font-size: var(--lfs);
   font-weight: 600;
-  letter-spacing: -0.055em;
-  line-height: 1.05;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   text-decoration: none;
-  transition: color 28ms ease, transform 40ms var(--ease), opacity 35ms ease;
+  transition: color 350ms ease, padding-left 600ms var(--ease);
 }
 
-.tarka-menu-link::after {
-  content: "";
+.tarka-menu-link .mn {
+  align-self: flex-start;
+  padding-top: calc(var(--lfs) * 0.16);
+  margin-right: clamp(0.7rem, 1vw, 1.1rem);
+  color: var(--duck);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  opacity: 0.75;
+  transition: translate 500ms var(--ease), opacity 300ms ease;
+}
+
+.tarka-menu-link .mw {
+  display: inline-flex;
+}
+
+/* each letter: masked, rolls up on hover to reveal a teal copy */
+.tarka-menu-link .mc {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  line-height: 1.08;
+  padding-bottom: 0.02em;
+}
+.tarka-menu-link .mc > span {
+  display: block;
+  translate: 0 110%;
+  transition:
+    translate 400ms ease 0ms,
+    transform 550ms var(--ease) calc(var(--c, 0) * 30ms);
+}
+.tarka-menu-link .mc::after {
+  content: attr(data-ch);
   position: absolute;
   left: 0;
-  bottom: -0.12em;
-  width: 100%;
-  height: 2px;
+  top: 0;
+  color: var(--duck);
+  transform: translateY(110%);
+  transition: transform 550ms var(--ease) calc(var(--c, 0) * 30ms);
+}
+
+/* entrance: letters rise one by one, link after link */
+.tarka-menu-overlay[aria-hidden="false"] .tarka-menu-link .mc > span {
+  translate: 0 0;
+  transition:
+    translate 1000ms cubic-bezier(0.2, 0.9, 0.1, 1)
+      calc(var(--i, 0) * 120ms + var(--c, 0) * 45ms + 350ms),
+    transform 550ms var(--ease) calc(var(--c, 0) * 30ms);
+}
+
+/* hover / focus: letters roll up in a wave, arrow flies in, row slides */
+.tarka-menu-link:is(:hover, :focus-visible) {
+  padding-left: 0.16em;
+}
+.tarka-menu-link:is(:hover, :focus-visible) .mc > span {
+  transform: translateY(-110%);
+}
+.tarka-menu-link:is(:hover, :focus-visible) .mc::after {
+  transform: translateY(0);
+}
+.tarka-menu-link:is(:hover, :focus-visible) .mn {
+  translate: 0 -0.3em;
+  opacity: 1;
+}
+
+.tarka-menu-link .ma {
+  align-self: center;
+  width: 0.42em;
+  height: 0.42em;
+  margin-left: 0.2em;
+  color: var(--duck);
+  opacity: 0;
+  translate: -0.5em 0.5em;
+  transition: opacity 300ms ease, translate 600ms var(--ease);
+}
+.tarka-menu-link:is(:hover, :focus-visible) .ma {
+  opacity: 1;
+  translate: 0 0;
+}
+
+/* the other links step back */
+.tarka-menu-list:hover .tarka-menu-link:not(:hover) {
+  color: rgba(16, 21, 21, 0.22);
+}
+
+/* ---------- START A PROJECT ---------- */
+.tarka-menu-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  width: fit-content;
+  padding: 0.45rem 0.45rem 0.45rem 1.4rem;
+  overflow: hidden;
+  border: 1.5px solid var(--duck);
+  border-radius: 999px;
+  color: var(--duck);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-decoration: none;
+  isolation: isolate;
+  transition: color 450ms ease;
+}
+.tarka-menu-cta__fill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background: var(--duck);
   transform: scaleX(0);
-  transform-origin: right;
-  transition: transform 35ms var(--ease);
-}
-
-.tarka-menu-link:hover, .tarka-menu-link:focus-visible {
-  color: var(--duck);
-}
-
-.tarka-menu-link:hover::after, .tarka-menu-link:focus-visible::after {
-  transform: scaleX(1);
   transform-origin: left;
+  transition: transform 600ms var(--ease);
+}
+.tarka-menu-cta__icon {
+  display: grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  background: var(--duck);
+  color: #fff;
+  transition: transform 600ms var(--ease), background-color 450ms ease, color 450ms ease;
+}
+.tarka-menu-cta:is(:hover, :focus-visible) {
+  color: #fff;
+}
+.tarka-menu-cta:is(:hover, :focus-visible) .tarka-menu-cta__fill {
+  transform: scaleX(1);
+}
+.tarka-menu-cta:is(:hover, :focus-visible) .tarka-menu-cta__icon {
+  background: #fff;
+  color: var(--duck);
+  transform: rotate(45deg);
 }
 
 .tarka-social-link {
-  color: rgba(16, 21, 21, 0.58);
-  font-size: 0.68rem;
+  color: rgba(16, 21, 21, 0.65);
+  font-size: 0.78rem;
   font-weight: 600;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   transition: color 250ms ease, transform 250ms ease;
 }
-
 .tarka-social-link:hover, .tarka-social-link:focus-visible {
   color: var(--duck);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+}
+
+/* ---------- Dial (right side) ---------- */
+.tarka-menu-orb {
+  position: absolute;
+  top: 50%;
+  right: clamp(24px, 6vw, 120px);
+  width: clamp(220px, 24vw, 400px);
+  aspect-ratio: 1;
+  translate: 0 -50%;
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.92;
+  transition: opacity 900ms ease 500ms, scale 1200ms var(--ease) 500ms;
+}
+.tarka-menu-overlay[aria-hidden="false"] .tarka-menu-orb {
+  opacity: 1;
+  scale: 1;
+}
+.tarka-menu-overlay[aria-hidden="false"] .tarka-menu-orb[data-active="true"] {
+  scale: 1.05;
+  transition-delay: 0s;
+  transition-duration: 600ms;
+}
+.tarka-menu-orb > span {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(10, 92, 110, 0.35);
+  border-radius: 50%;
+}
+.tarka-menu-orb > span:nth-child(2) {
+  inset: 12%;
+  border-style: dashed;
+  border-color: rgba(10, 92, 110, 0.3);
+  animation: tarka-orb-spin 40s linear infinite;
+}
+.tarka-menu-orb > span:nth-child(3) {
+  inset: 26%;
+  border-color: rgba(16, 21, 21, 0.14);
+  animation: tarka-orb-spin 26s linear infinite reverse;
+}
+.tarka-menu-orb > i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin: -7px 0 0 -7px;
+  border-radius: 50%;
+  background: var(--duck);
+  box-shadow: 0 0 0 10px rgba(10, 92, 110, 0.12);
+  animation: tarka-orb-pulse 3.2s ease-in-out infinite;
+  transition: opacity 300ms ease;
+}
+.tarka-menu-orb[data-active="true"] > i {
+  opacity: 0;
+}
+
+.tarka-menu-dial {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.6rem;
+  padding: 0 20%;
+  text-align: center;
+  animation: tarka-dial-in 650ms var(--ease) both;
+}
+.tarka-menu-dial b {
+  color: transparent;
+  font-size: clamp(3rem, 5vw, 5rem);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  -webkit-text-stroke: 1.5px var(--duck);
+}
+.tarka-menu-dial small {
+  color: rgba(16, 21, 21, 0.62);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+
+@keyframes tarka-dial-in {
+  from { opacity: 0; transform: translateY(18px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes tarka-orb-spin { to { transform: rotate(360deg); } }
+@keyframes tarka-orb-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+}
+
+/* ---------- Outlined marquee (bottom) ---------- */
+.tarka-menu-marquee {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.1em;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 900ms ease 700ms;
+}
+.tarka-menu-overlay[aria-hidden="false"] .tarka-menu-marquee {
+  opacity: 1;
+}
+.tarka-menu-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: tarka-marquee 45s linear infinite;
+}
+.tarka-menu-marquee__track span {
+  flex: none;
+  white-space: nowrap;
+  color: transparent;
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  -webkit-text-stroke: 1px rgba(10, 92, 110, 0.2);
+}
+@keyframes tarka-marquee { to { transform: translateX(-50%); } }
+
+@media (max-width: 767px), (max-height: 780px) {
+  .tarka-menu-marquee { display: none; }
+}
+@media (max-width: 767px) {
+  .tarka-menu-orb { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tarka-menu-shutter,
+  .tarka-menu-overlay,
+  .tarka-menu-eyebrow,
+  .tarka-menu-foot,
+  .tarka-menu-link,
+  .tarka-menu-link *,
+  .tarka-menu-link .mc::after,
+  .tarka-menu-cta,
+  .tarka-menu-cta *,
+  .tarka-menu-orb,
+  .tarka-menu-marquee {
+    transition: none !important;
+  }
+  .tarka-menu-orb > span,
+  .tarka-menu-orb > i,
+  .tarka-menu-marquee__track,
+  .tarka-menu-dial {
+    animation: none !important;
+  }
 }
 
 /* ABOUT TARKA */

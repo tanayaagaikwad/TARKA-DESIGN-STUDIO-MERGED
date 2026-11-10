@@ -5,6 +5,7 @@ import ScrollToTop from "./components/ScrollToTop";
 
 // Layouts
 import MainLayout from "./layouts/MainLayout";
+import DomainLayout from "./layouts/DomainLayout";
 
 // Tanaya's Marketing & Editorial Pages
 import HomePage from "./pages/HomePage";
@@ -52,34 +53,36 @@ function App() {
           <Route path="/contact" element={<Navigate to="/inquiry" replace />} />
         </Route>
 
-        {/* Pranali's Domain Pages with DomainNavigation & DomainFooter */}
-        <Route
-          path="/product"
-          element={<DomainPage domainId="product-design" />}
-        />
-        <Route
-          path="/identity"
-          element={<DomainPage domainId="graphic-design" />}
-        />
-        <Route
-          path="/digital"
-          element={<DomainPage domainId="uiux-web" />}
-        />
-        <Route
-          path="/reach"
-          element={<DomainPage domainId="marketing" />}
-        />
-        <Route
-          path="/video"
-          element={<DomainPage domainId="video-generation" />}
-        />
-        <Route
-          path="/photography"
-          element={<DomainPage domainId="photography" />}
-        />
+        {/* Pranali's pages: light theme via DomainLayout */}
+        <Route element={<DomainLayout />}>
+          <Route
+            path="/product"
+            element={<DomainPage domainId="product-design" />}
+          />
+          <Route
+            path="/identity"
+            element={<DomainPage domainId="graphic-design" />}
+          />
+          <Route
+            path="/digital"
+            element={<DomainPage domainId="uiux-web" />}
+          />
+          <Route
+            path="/reach"
+            element={<DomainPage domainId="marketing" />}
+          />
+          <Route
+            path="/video"
+            element={<DomainPage domainId="video-generation" />}
+          />
+          <Route
+            path="/photography"
+            element={<DomainPage domainId="photography" />}
+          />
 
-        {/* Pranali's Quotation Builder & PDF Generator */}
-        <Route path="/quote" element={<QuotePage />} />
+          {/* Pranali's Quotation Builder & PDF Generator */}
+          <Route path="/quote" element={<QuotePage />} />
+        </Route>
 
         {/* Fallback route */}
         <Route path="*" element={<Navigate to="/" replace />} />

@@ -244,9 +244,9 @@ export const quoteTerms = [
 ];
 
 export const tarkaContact = {
-  email: "hello@tarkadesign.com",
+  email: "tarkadesignstudio@gmail.com",
   phone: "+91 80 4000 1234",
-  address: "Bengaluru, India",
+  address: "Pune, India",
   web: "www.tarkadesign.com",
 };
 

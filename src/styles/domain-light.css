@@ -1,0 +1,31 @@
+/* Light-theme overrides for Pranali's pages (scoped to body.domain-light).
+   The standard domain sections are already light; only these heroes were dark. */
+
+/* Marketing tunnel: text uses variables, so flipping them is enough */
+body.domain-light .marketing-tunnel {
+  --mt-white: #0a0a0a;
+  --mt-muted: rgba(10, 10, 10, 0.62);
+  background: #f4f7f7;
+}
+
+/* Photography hero */
+body.domain-light .photo-hero {
+  background: var(--photo-white);
+  color: var(--photo-black);
+}
+
+/* Video hero: its styles are injected inline, so use higher specificity */
+body.domain-light .video-generation-hero {
+  --video-cyan: #007f8f;
+  color: #0a0a0a;
+  background: #f4f7f7;
+}
+body.domain-light .video-generation-hero .video-topline,
+body.domain-light .video-generation-hero .video-heading p {
+  color: rgba(10, 10, 10, 0.6);
+}
+
+/* The site-wide teal grid overlay is built for dark; hide it on light pages */
+body.domain-light::after {
+  display: none;
+}
